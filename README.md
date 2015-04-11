@@ -2,6 +2,7 @@ https://github.com/OceanSky/htaccess/
 # htaccess
 .htaccess Boilerplate - Make your website faster and more secure.
 
+===================================
 .htaccess BoilerPlate Instructions
 ===================================
 
@@ -62,10 +63,11 @@ Recommendations:
 -Be meticulous about BACKING UP .htaccess and TESTING often during edits.
 -Configure page caching last (and refresh pages or clear browser data often)
 -Test your web domain URLs in multiple web browsers.
--IF YOU'RE GETTING STRESSED OUT,  T A K E  A  B R E A K  and come back to retry later.
+-If you get too Stressed Out,  T A K E  A  B R E A K  and come back to retry later.
 
 Reference Sites:
 http://www.askapache.com/htaccess/htaccess.html
+
 https://docs.nexcess.net/category/website-management/-htaccess-file-commands/
 
 ##########  or from YOUR WEB HOST PROVIDER!  ##########

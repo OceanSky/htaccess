@@ -1,0 +1,434 @@
+# EDIT This .htaccess file specifically for your web server and domain name...
+### IMPORTANT:  Tniy Mistakes in the .htaccess file can break your website.  Make backups and use caution!
+#### Comments are any line(s) that begin with a # (number or 'pound') sign.
+##### It's highly recommended to save and test after each change/update.  
+###### Your web server make take a few minutes to recognize and apply .htaccess changes but its usually instant.
+####### This file MUST be named ".htaccess" with NO file extension and uploaded to your web server.  You will need permissions.
+######## The .htaccess file will affect directory sub-folders beneath it, but is trumped by other .htaccess for specific folders.
+######### Find more info at:  https://docs.nexcess.net/category/website-management/-htaccess-file-commands/
+##########  or at:  http://www.askapache.com/htaccess/htaccess.html  or from YOUR WEB HOST PROVIDER!
+# ===================================================================================================================================
+
+# Use PHP5.4 as default (You may need to check with your web hosting provider to get or set your current PHP version.)
+AddHandler application/x-httpd-php54 .php
+
+# Required Once to make things work
+RewriteEngine on
+
+# (Unset/Set Comments # to Switch between SymLinks Options.)
+# Note: SymLink = 'symbolic link' (aka a shortcut on your web server similar to desktop shortcuts)
+# Options +FollowSymlinks
+Options +SymLinksIfOwnerMatch
+RewriteOptions inherit
+
+# Set Root Directory
+RewriteBase /
+
+# Send a Do Not Track reply
+RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
+RewriteRule .* - [F]
+
+# Redirect visitors to www. version of website
+RewriteCond %{HTTP_HOST} ^yourwebsite.com [nc]
+RewriteRule ^(.*)$ http://www.yourwebsite.com/$1 [r=301,nc]
+
+# Redirect users to the same page but in a different directory
+RewriteCond %{HTTP_HOST} ^yourwebsite.com/old/[nc]
+RewriteRule ^(.*)$ http://www.yourwebsite.com/new//$1 [r=301,nc]
+
+# Redirect vistors from a hyphenated site to regular (aka your-site.com to yoursite.com)
+RewriteCond %{HTTP_HOST} ^your\-website\.com$ [nc,OR]
+RewriteCond %{HTTP_HOST} ^www\.your\-website\.com$ [nc]
+RewriteRule ^(.*)$ "http\:\/\/www\.yourwebsite\.com\/$1" [R=301,L]
+
+# Set your webmaster's email address
+SetEnv SERVER_ADMIN webmaster@yourwebsite.com
+
+# Set default homepage (can be anything but typically index.html or default.html)
+DirectoryIndex index.php
+
+# Don't show indexes of directories in URL
+IndexIgnore *
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.php\ HTTP/ 
+RewriteRule ^index\.php$ http://www.yourwebsite.com/ [R,L]
+
+# Redirect website without www to same site with www.
+RewriteCond %{HTTP_HOST} ^yourwebsite.com [nc]
+RewriteRule ^(.*)$ http://www.yourwebsite.com [r=301,nc]
+
+# Remove query string
+# RewriteCond %{QUERY_STRING} .
+# RewriteRule ^(.*)$ http://www.yourwebsite.com/$1? [L]
+
+# Use UTF-8 encoding for anything served as `text/html` or `text/plain`.
+<FilesMatch "\.(htm|html|css|js|php)$">
+AddDefaultCharset UTF-8
+DefaultLanguage en-US
+</FilesMatch>
+
+# Force UTF-8 for certain file formats.
+<IfModule mod_mime.c>
+ AddCharset utf-8 .atom .css .js .json .jsonld .rss .vtt .webapp .xml
+</IfModule>
+
+# Add file types
+<IfModule mod_mime.c>
+ AddType application/javascript js
+ AddType audio/mp4 m4a f4a f4b
+ AddType audio/ogg oga ogg opus
+ AddType video/mp4 f4v f4p m4v mp4
+ AddType video/ogg ogv
+ AddType video/webm webm
+ AddType video/x-flv flv
+ AddType application/font-woff woff
+ AddType application/vnd.ms-fontobject eot
+ AddType application/x-font-ttf ttc ttf
+ AddType font/opentype otf
+ AddType image/svg+xml svgz
+ AddEncoding gzip svgz
+ AddType application/octet-stream safariextz
+ AddType application/octet-stream .pdf .doc .xls .xps .csv 
+ AddType application/x-chrome-extension crx
+ AddType application/x-opera-extension oex
+ AddType application/x-web-app-manifest+json webapp
+ AddType application/x-xpinstall xpi
+ AddType application/xml atom rdf rss xml
+ AddType image/webp webp
+ AddType image/x-icon cur
+ AddType text/cache-manifest appcache manifest
+ AddType text/vtt vtt
+ AddType text/x-component htc
+ AddType text/x-vcard vcf
+ AddType text/cache-manifest .appcache
+</IfModule>
+
+# Disable Hotlinking to these file types
+# (Hotlinking is when other websites pull an image or content from your site through a link (putting the load on your server)
+# RewriteCond %{REQUEST_URI} !hotlink\.(gif|jpg|png|mov|avi|swf|flv|mpg|pdf|ico) [NC]
+
+# Add Custom Header Info
+<IfModule mod_headers.c>
+	Header set Author YourNameHere
+	Header append Author yourwebsite
+  Header unset ETag
+</IfModule>
+
+# Remove and Disable the ETag (Entity Tag) to affectly control cache instead of allowing browsers to control cache
+FileETag None
+
+<ifModule mod_headers.c>
+  <filesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|bmp|swf)$">
+    Header set Cache-Control "max-age=900, private, must-revalidate, no-transform"
+  </filesMatch>
+  <filesMatch "\.(css)$">
+    Header set Cache-Control "max-age=900, private, must-revalidate, no-transform"
+  </filesMatch>
+  <filesMatch "\.(js)$">
+    Header set Cache-Control "max-age=900, private, must-revalidate, no-transform"
+  </filesMatch>
+  <filesMatch "\.(xml|txt)$">
+    Header set Cache-Control "max-age=900, private, must-revalidate, no-transform"
+  </filesMatch>
+  <filesMatch "\.(html|htm)$">
+    Header set Cache-Control "max-age=900, private, must-revalidate, no-transform"
+  </filesMatch>
+	# disable caching for dynamic files
+	<FilesMatch ".(pl|php|cgi|spl|scgi|fcgi|appcache)$">
+	Header set Cache-Control "max-age=900, private, must-revalidate, no-transform"
+	</FilesMatch>
+</ifModule>
+
+# Add Cache-Control Headers for faster page loading (age is measured in seconds)
+# No-Cache Headers are great during development and can be disabled for launch phase
+# Header set Cache-Control "max-age=0, s-maxage=0, no-cache, no-store, private, must-revalidate, no-transform"
+# Header set Pragma "no-cache"
+
+<IfModule mod_expires.c>
+    ExpiresActive on
+    ExpiresDefault                                      "access plus 1 weeks"
+  # CSS
+    ExpiresByType text/css                              "access plus 1 days"
+  # Data interchange
+    ExpiresByType application/json                      "access plus 1 days"
+    ExpiresByType application/xml                       "access plus 1 days"
+    ExpiresByType text/xml                              "access plus 1 days"
+  # Favicon (cannot be renamed!)
+    ExpiresByType image/x-icon                          "access plus 1 years"
+  # HTML components (HTCs)
+    ExpiresByType text/x-component                      "access plus 1 years"
+  # HTML
+    ExpiresByType text/html                             "access plus 1 hours"
+  # JavaScript
+    ExpiresByType application/javascript                "access plus 1 days"
+  # Manifest files
+    ExpiresByType application/x-web-app-manifest+json   "access plus 1 seconds"
+    ExpiresByType text/cache-manifest                   "access plus 1 seconds"
+  # Media
+    ExpiresByType audio/ogg                             "access plus 1 years"
+    ExpiresByType image/gif                             "access plus 1 years"
+    ExpiresByType image/jpeg                            "access plus 1 years"
+    ExpiresByType image/png                             "access plus 1 years"
+    ExpiresByType video/mp4                             "access plus 1 years"
+    ExpiresByType video/ogg                             "access plus 1 years"
+    ExpiresByType video/webm                            "access plus 1 years"
+  # Web feeds
+    ExpiresByType application/atom+xml                  "access plus 1 hours"
+    ExpiresByType application/rss+xml                   "access plus 1 hours"
+  # Web fonts
+    ExpiresByType application/font-woff                 "access plus 1 days"
+    ExpiresByType application/vnd.ms-fontobject         "access plus 1 days"
+    ExpiresByType application/x-font-ttf                "access plus 1 days"
+    ExpiresByType font/opentype                         "access plus 1 days"
+    ExpiresByType image/svg+xml                         "access plus 1 days"
+</IfModule>
+
+# Enable Deflate File Compression
+<IfModule mod_deflate.c>
+	<IfModule mod_setenvif.c>
+		BrowserMatch ^Mozilla/4 gzip-only-text/html
+		BrowserMatch ^Mozilla/4\.0[678] no-gzip
+		BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+		BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+	</IfModule>
+	<IfModule mod_headers.c>
+	  Header append Vary User-Agent env=!dont-vary
+		SetEnvIfNoCase ^(Accept-EncodXng|X-cept-Encoding|X{15}|~{15}|-{15})$ ^((gzip|deflate)\s*,?\s*)+|[X~-]{4,13}$ HAVE_Accept-Encoding
+		RequestHeader append Accept-Encoding "gzip,deflate" env=HAVE_Accept-Encoding
+    </IfModule>
+    <IfModule mod_mime.c>
+        # DEFLATE by extension
+        AddOutputFilter DEFLATE js css htm html xml
+    </IfModule>
+    AddOutputFilterByType DEFLATE text/css text/x-component application/x-javascript application/javascript text/javascript text/x-js text/html text/richtext image/svg+xml text/plain text/xsd text/xsl text/xml image/x-icon application/json text/html text/xml text/css text/plain image/svg+xml application/xhtml+xml application/xml application/rdf+xml application/rss+xml application/atom+xml application/x-font-ttf application/x-font-otf font/truetype font/opentype
+</IfModule>
+
+# Enable GZIP File Compression
+<ifModule mod_gzip.c>
+mod_gzip_on Yes
+mod_gzip_dechunk Yes
+mod_gzip_item_include file .(html?|txt|css|js|php|pl)$
+mod_gzip_item_include handler ^cgi-script$
+mod_gzip_item_include mime ^text/.*
+mod_gzip_item_include mime ^application/x-javascript.*
+mod_gzip_item_exclude mime ^image/.*
+mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
+</ifModule>
+
+# Deny site access to known bad robots
+RewriteCond %{HTTP_USER_AGENT} ^Anarchie [OR]
+RewriteCond %{HTTP_USER_AGENT} ^ASPSeek [OR]
+RewriteCond %{HTTP_USER_AGENT} ^attach [OR]
+RewriteCond %{HTTP_USER_AGENT} ^autoemailspider [OR]
+RewriteCond %{HTTP_USER_AGENT} ^BackWeb [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} ^Bandit [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} ^BatchFTP [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} ^BecomeBot [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} ^BlackWidow [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Bot\ mailto:craftbot@yahoo.com [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^ChinaClaw [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Custo [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^DISCo [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Download\ Demon [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^eCatch [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^EirGrabber [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^EmailSiphon [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^EmailWolf [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Express\ WebPictures [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^ExtractorPro [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^EyeNetIE [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^FlashGet [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^GetRight [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^GetWeb! [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Go!Zilla [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Go-Ahead-Got-It [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^GrabNet [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Grafula [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^HMView [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^HTTrack [NC,OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Image\ Stripper [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Image\ Sucker [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Indy\ Library [NC,OR] 
+RewriteCond %{HTTP_USER_AGENT} ^InterGET [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Internet\ Ninja [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^JetCar [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^JOC\ Web\ Spider [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^larbin [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^LeechFTP [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Mass\ Downloader [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^MIDown\ tool [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Mister\ PiX [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Navroad [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^NearSite [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^NetAnts [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^NetSpider [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Net\ Vampire [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^NetZIP [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Octopus [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Offline\ Explorer [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Offline\ Navigator [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^PageGrabber [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Papa\ Foto [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^pavuk [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^pcBrowser [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^RealDownload [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^ReGet [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^SiteSnagger [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^SmartDownload [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^SuperBot [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^SuperHTTP [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Surfbot [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^tAkeOut [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Teleport\ Pro [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^VoidEYE [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Web\ Image\ Collector [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Web\ Sucker [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebAuto [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebCopier [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebFetch [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebGo\ IS [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebLeacher [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebReaper [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebSauger [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Website\ eXtractor [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Website\ Quester [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebStripper [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebWhacker [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WebZIP [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Widow [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^WWWOFFLE [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Xenu [OR]
+RewriteCond %{HTTP_USER_AGENT} ^Xaldon\ WebSpider [OR] 
+RewriteCond %{HTTP_USER_AGENT} ^Zeus 
+RewriteCond %{HTTP_USER_AGENT} ^Zeus.*Webster [OR]
+RewriteRule ^.* - [F,L]
+
+# Enable Subdomain Referers
+RewriteCond %{HTTP_REFERER} !^http://backups.yoursite.com/.*$      [NC]
+RewriteCond %{HTTP_REFERER} !^http://backups.yoursite.com$      [NC]
+RewriteCond %{HTTP_REFERER} !^http://otherwebsite.com/.*$      [NC]
+RewriteCond %{HTTP_REFERER} !^http://otherwebsite.com$      [NC]
+RewriteCond %{HTTP_REFERER} !^http://downloads.yoursite.com/.*$      [NC]
+RewriteCond %{HTTP_REFERER} !^http://downloads.yoursite.com$      [NC]
+RewriteCond %{HTTP_REFERER} !^http://(www.)?yourwebsite.com/.*$      [NC]
+RewriteCond %{HTTP_REFERER} !^http://(www.)?yourwebsite.com$      [NC]
+RewriteRule .*\.(gif|jpg|png|mov|avi|swf|flv|mpg|webm)$ - [F,NC]
+
+# Block request based on User-Agent Header
+SetEnvIfNoCase ^User-Agent$ .*(craftbot|download|extract|stripper|sucker|ninja|clshttp|webspider|leacher|collector|grabber|webpictures) HTTP_SAFE_BADBOT
+SetEnvIfNoCase ^User-Agent$ .*(libwww-perl|aesop_com_spiderman) HTTP_SAFE_BADBOT
+Deny from env=HTTP_SAFE_BADBOT
+
+# DENY_BAD_QUERY_STRINGS_START
+RewriteCond %{QUERY_STRING} tag=     [NC,OR]
+RewriteCond %{QUERY_STRING} ftp:     [NC,OR]
+RewriteCond %{QUERY_STRING} http:    [NC,OR]
+RewriteCond %{QUERY_STRING} https:   [NC,OR]
+RewriteCond %{QUERY_STRING} mosConfig [NC,OR]
+RewriteCond %{QUERY_STRING} ^.*(globals|encode|localhost|loopback).* [NC,OR]
+RewriteCond %{QUERY_STRING} (\;|'|\"|%22).*(request|insert|union|declare|drop) [NC]
+RewriteRule ^(.*)$ - [F,L]
+#DENY_BAD_QUERY_STRINGS_END
+
+# ADVANCED_CHAR_STRING_FILTER_START
+# Hinder cross-site scripting (XSS) attacks
+<IfModule mod_alias.c>
+RedirectMatch 403 \,
+RedirectMatch 403 \:
+RedirectMatch 403 \;
+RedirectMatch 403 \=
+RedirectMatch 403 \@
+RedirectMatch 403 \[
+RedirectMatch 403 \]
+RedirectMatch 403 \^
+RedirectMatch 403 \`
+RedirectMatch 403 \{
+RedirectMatch 403 \}
+RedirectMatch 403 \~
+RedirectMatch 403 \"
+RedirectMatch 403 \<
+RedirectMatch 403 \>
+RedirectMatch 403 \|
+RedirectMatch 403 \.\.
+RedirectMatch 403 \%0
+RedirectMatch 403 \%A
+RedirectMatch 403 \%B
+RedirectMatch 403 \%C
+RedirectMatch 403 \%D
+RedirectMatch 403 \%E
+RedirectMatch 403 \%F
+RedirectMatch 403 \%22
+RedirectMatch 403 \%27
+RedirectMatch 403 \%28
+RedirectMatch 403 \%29
+RedirectMatch 403 \%3C
+RedirectMatch 403 \%3E
+RedirectMatch 403 \%3F
+RedirectMatch 403 \%5B
+RedirectMatch 403 \%5C
+RedirectMatch 403 \%5D
+RedirectMatch 403 \%7B
+RedirectMatch 403 \%7C
+RedirectMatch 403 \%7D
+# COMMON PATTERNS
+Redirectmatch 403 \_vpi
+RedirectMatch 403 \.inc
+Redirectmatch 403 xAou6
+Redirectmatch 403 db\_name
+Redirectmatch 403 select\(
+Redirectmatch 403 convert\(
+Redirectmatch 403 \/query\/
+RedirectMatch 403 ImpEvData
+Redirectmatch 403 \.XMLHTTP
+Redirectmatch 403 proxydeny
+RedirectMatch 403 function\.
+Redirectmatch 403 remoteFile
+Redirectmatch 403 servername
+Redirectmatch 403 \&rptmode\=
+Redirectmatch 403 sys\_cpanel
+RedirectMatch 403 db\_connect
+RedirectMatch 403 doeditconfig
+RedirectMatch 403 check\_proxy
+Redirectmatch 403 system\_user
+Redirectmatch 403 \/\(null\)\/
+Redirectmatch 403 clientrequest
+Redirectmatch 403 option\_value
+RedirectMatch 403 ref\.outcontrol
+# SPECIFIC EXPLOITS
+RedirectMatch 403 errors\.
+RedirectMatch 403 config\.
+RedirectMatch 403 include\.
+RedirectMatch 403 display\.
+RedirectMatch 403 register\.
+Redirectmatch 403 password\.
+RedirectMatch 403 maincore\.
+RedirectMatch 403 authorize\.
+Redirectmatch 403 macromates\.
+RedirectMatch 403 head\_auth\.
+RedirectMatch 403 submit\_links\.
+RedirectMatch 403 change\_action\.
+Redirectmatch 403 com\_facileforms\/
+RedirectMatch 403 admin\_db\_utilities\.
+RedirectMatch 403 admin\.webring\.docs\.
+Redirectmatch 403 Table\/Latest\/index\.
+</IfModule>
+#ADVANCED_CHAR_STRING_FILTER_END
+
+# Custom Error Pages  (domain not neccessary -- aka ErrorDocument 404 /404.php is okay.)
+ErrorDocument 500 http://www.yourwebsite.com/500.php
+ErrorDocument 400 http://www.yourwebsite.com/400.php
+ErrorDocument 401 http://www.yourwebsite.com/401.php
+ErrorDocument 403 http://www.yourwebsite.com/403.php
+ErrorDocument 404 http://www.yourwebsite.com/404.php
+
+# Deny access to htacess
+<Files .htaccess>
+order allow,deny
+deny from all
+</Files>
+
+<Files 403.php>
+order allow,deny
+allow from all
+</Files>
+
+deny from 216.152.252.211

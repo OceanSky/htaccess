@@ -24,10 +24,6 @@ RewriteOptions inherit
 # Set Root Directory
 RewriteBase /
 
-# Send a Do Not Track reply
-RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
-RewriteRule .* - [F]
-
 # Redirect visitors to www. version of website
 RewriteCond %{HTTP_HOST} ^yourwebsite.com [nc]
 RewriteRule ^(.*)$ http://www.yourwebsite.com/$1 [r=301,nc]
@@ -412,6 +408,10 @@ RedirectMatch 403 admin\.webring\.docs\.
 Redirectmatch 403 Table\/Latest\/index\.
 </IfModule>
 #ADVANCED_CHAR_STRING_FILTER_END
+
+# Send a Do Not Track reply
+RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
+RewriteRule .* - [F]
 
 # Custom Error Pages  (domain not neccessary -- aka ErrorDocument 404 /404.php is okay.)
 ErrorDocument 500 http://www.yourwebsite.com/500.php
